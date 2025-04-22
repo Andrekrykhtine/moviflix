@@ -1,7 +1,6 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 
-
 const port = 3000;
 const app = express();
 const prisma = new PrismaClient();
@@ -17,25 +16,33 @@ app.get("/movies", async (_, res) => {
 });
 
 app.post("/movies", async (req, res) => {
+  // console.log(`conteudo do body enviado na req: ${req.body}`);
+  const { title, genre_id, language_id, oscar_count, release_date } = req.body;
+  // verificar se já existe um filme com o mesmo título
 
-   // console.log(`conteudo do body enviado na req: ${req.body}`); 
-   const { title, genre_id, language_id, oscar_count, release_date } = req.body;
-
-try{
-     await prisma.movie.create({
-    data: {
-      title: title,
-      genre_id: genre_id,
-      language_id: language_id,
-      oscar_count: oscar_count,
-      release_date: new Date(release_date),
-    },
-  });
-}
-catch(error){
-   console.error("Error while creating a movie:", error);
-   return res.status(500).send({mensagem:"falha ao cadastrar um filme"});
-}
+  try {
+    const movieWithSameTitle = await prisma.movie.findFirst({
+      where: {
+        title: { equals: title, mode: "insensitive" },
+      },
+    });
+    if (movieWithSameTitle) {
+      return res
+        .status(409) //conflito com algum outro recurso
+        .send({ message: "Já existe um filme com esse título" });
+    }
+    await prisma.movie.create({
+      data: {
+        title,
+        genre_id,
+        language_id,
+        oscar_count,
+        release_date: new Date(release_date),
+      },
+    });
+  } catch (error) {
+    return res.status(500).send({ mensagem: "falha ao cadastrar um filme" });
+  }
 
   res.status(201).send();
 });
