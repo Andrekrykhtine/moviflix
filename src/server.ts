@@ -125,8 +125,6 @@ res.status(200).send(moviesFilteredByGenreName);
 });
 
 
-
-
 app.listen(port, () => {
   console.log(`Servidor em execução em http://localhost:${port}`);
 });
