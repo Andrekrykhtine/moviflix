@@ -99,7 +99,7 @@ app.delete('/movies/:id', async (req, res) => {
       res.status(500).send({ message: 'Falha ao remover o registro' });
     }
   
-res.status(200).send();
+res.status(200).send({message: 'Filme excluido com sucesso'});
 });
 
 app.get("/movies/:genreName", async (req, res) => {
