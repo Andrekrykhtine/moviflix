@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 app.use(express.json());
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.get("/movies", async (_, res) => {
+app.get("/movies", async (_, res) => {//rota que retorna todos os filmes
   const movies = await prisma.movie.findMany({
     orderBy: { title: "asc" },
     include: { genres: true, languages: true },
@@ -18,7 +18,7 @@ app.get("/movies", async (_, res) => {
   res.json(movies);
 });
 
-app.post("/movies", async (req, res) => {
+app.post("/movies", async (req, res) => {//rota que cadastra um filme
   // console.log(`conteudo do body enviado na req: ${req.body}`);
   const { title, genre_id, language_id, oscar_count, release_date } = req.body;
   // verificar se já existe um filme com o mesmo título
@@ -43,12 +43,16 @@ app.post("/movies", async (req, res) => {
         release_date: new Date(release_date),
       },
     });
+
+    res.status(201).send({ message: "filme cadastrado com sucesso" });
+
   } catch (error) {
+    console.error(error);
     return res.status(500).send({ mensagem: "falha ao cadastrar um filme" });
   }
 });
 
-app.put("/movies/:id", async (req, res) => {
+app.put("/movies/:id", async (req, res) => { // rota que atualiza um filme
   //pegar o id do registro que vai ser atualizado
   // console.log(req.params.id);
   const id = Number(req.params.id);
@@ -83,7 +87,7 @@ app.put("/movies/:id", async (req, res) => {
   res.status(200).send(); // retornar o status correto informando que o filme foi atualizado
 });
 
-app.delete('/movies/:id', async (req, res) => {
+app.delete('/movies/:id', async (req, res) => { //rota que deleta um filme
   const id = Number(req.params.id);
 
   try{
@@ -102,7 +106,7 @@ app.delete('/movies/:id', async (req, res) => {
 res.status(200).send({message: 'Filme excluido com sucesso'});
 });
 
-app.get("/movies/:genreName", async (req, res) => {
+app.get("/movies/:genreName", async (req, res) => {//rota que filtra filmes pelo genero
 //receber o nome do genero pelo parametros da rota
 //console.log(`nome do genero: ${req.params.genreName}`);
 
